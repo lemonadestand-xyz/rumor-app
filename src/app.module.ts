@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './events/events.module';
+import { MemberProfilesModule } from './member-profiles/member-profiles.module';
+import { GuestsModule } from './guests/guests.module';
 import databaseConfig from './database/config/database.config';
 import authConfig from './auth/config/auth.config';
 import appConfig from './config/app.config';
@@ -27,6 +30,15 @@ import { MailerModule } from './mailer/mailer.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
+// import { HostProfilesModule } from './host-profiles/host-profiles.module';
+import { MessagingModule } from './messaging/messaging.module';
+import { CompensationModule } from './compensation/compensation.module';
+import { CrmModule } from './crm/crm.module';
+import { ReferralsModule } from './referrals/referrals.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { TicketsModule } from './tickets/tickets.module';
+import { EventInvitesModule } from './event-invites/event-invites.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -92,6 +104,18 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     MailModule,
     MailerModule,
     HomeModule,
+    EventsModule,
+    MemberProfilesModule,
+    GuestsModule,
+    // HostProfilesModule, // Temporarily disabled due to compilation errors
+    MessagingModule,
+    CompensationModule,
+    CrmModule,
+    ReferralsModule,
+    NotificationsModule,
+    AnalyticsModule,
+    TicketsModule,
+    EventInvitesModule,
   ],
 })
 export class AppModule {}
