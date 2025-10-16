@@ -25,8 +25,27 @@ export class User {
   @Expose({ groups: ['me', 'admin'] })
   email: string | null;
 
+  @ApiProperty({
+    type: String,
+    example: '+1234567890',
+  })
+  @Expose({ groups: ['me', 'admin'] })
+  phoneNumber?: string | null;
+
+  @ApiProperty({
+    type: String,
+    example: 'johndoe',
+  })
+  username?: string | null;
+
   @Exclude({ toPlainOnly: true })
   password?: string;
+
+  @Exclude({ toPlainOnly: true })
+  temporaryPassword?: string;
+
+  @Exclude({ toPlainOnly: true })
+  temporaryPasswordToken?: string;
 
   @ApiProperty({
     type: String,
@@ -55,6 +74,18 @@ export class User {
   lastName: string | null;
 
   @ApiProperty({
+    type: Date,
+    example: '1990-01-01',
+  })
+  dateOfBirth?: Date | null;
+
+  @ApiProperty({
+    type: String,
+    example: 'male',
+  })
+  gender?: string | null;
+
+  @ApiProperty({
     type: () => FileType,
   })
   photo?: FileType | null;
@@ -68,6 +99,57 @@ export class User {
     type: () => Status,
   })
   status?: Status;
+
+  @ApiProperty({
+    type: Boolean,
+    example: true,
+  })
+  isActive?: boolean;
+
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+  })
+  isDeactivated?: boolean;
+
+  @ApiProperty({
+    type: Date,
+  })
+  deactivatedAt?: Date | null;
+
+  @ApiProperty({
+    type: Boolean,
+    example: true,
+  })
+  isFirstTimeLogin?: boolean;
+
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+  })
+  instagramValidated?: boolean;
+
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+  })
+  communityGuidelinesAgreed?: boolean;
+
+  @ApiProperty({
+    type: Date,
+  })
+  communityGuidelinesAgreedAt?: Date | null;
+
+  @ApiProperty({
+    type: Boolean,
+    example: false,
+  })
+  hostCommunityGuidelinesAgreed?: boolean;
+
+  @ApiProperty({
+    type: Date,
+  })
+  hostCommunityGuidelinesAgreedAt?: Date | null;
 
   @ApiProperty()
   createdAt: Date;

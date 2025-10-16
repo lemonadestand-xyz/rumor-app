@@ -29,8 +29,28 @@ export class UserEntity extends EntityRelationalHelper {
   @Column({ type: String, unique: true, nullable: true })
   email: string | null;
 
+  @Index()
+  @Column({ type: String, unique: true, nullable: true })
+  phoneNumber?: string | null;
+
+  @Index()
+  @Column({ type: String, unique: true, nullable: true })
+  username?: string | null;
+
   @Column({ nullable: true })
   password?: string;
+
+  @Column({ nullable: true })
+  temporaryPassword?: string;
+
+  @Column({ nullable: true })
+  temporaryPasswordToken?: string;
+
+  @Column({ nullable: true })
+  twoFactorCode?: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  twoFactorCodeExpiresAt?: Date;
 
   @Column({ default: AuthProvidersEnum.email })
   provider: string;
@@ -47,6 +67,12 @@ export class UserEntity extends EntityRelationalHelper {
   @Column({ type: String, nullable: true })
   lastName: string | null;
 
+  @Column({ type: 'date', nullable: true })
+  dateOfBirth?: Date | null;
+
+  @Column({ type: String, nullable: true })
+  gender?: string | null;
+
   @OneToOne(() => FileEntity, {
     eager: true,
   })
@@ -62,6 +88,35 @@ export class UserEntity extends EntityRelationalHelper {
     eager: true,
   })
   status?: StatusEntity;
+
+  // Status flags
+  @Column({ default: true })
+  isActive?: boolean;
+
+  @Column({ default: false })
+  isDeactivated?: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deactivatedAt?: Date | null;
+
+  @Column({ default: true })
+  isFirstTimeLogin?: boolean;
+
+  @Column({ default: false })
+  instagramValidated?: boolean;
+
+  // Agreement flags
+  @Column({ default: false })
+  communityGuidelinesAgreed?: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  communityGuidelinesAgreedAt?: Date | null;
+
+  @Column({ default: false })
+  hostCommunityGuidelinesAgreed?: boolean;
+
+  @Column({ type: 'timestamp', nullable: true })
+  hostCommunityGuidelinesAgreedAt?: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;
