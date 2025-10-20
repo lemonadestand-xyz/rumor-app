@@ -8,21 +8,20 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   constructor(private configService: ConfigService<AllConfigType>) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    return {
-      type: this.configService.get('database.type', { infer: true }),
-      url: this.configService.get('database.url', { infer: true }),
-      host: this.configService.get('database.host', { infer: true }),
-      port: this.configService.get('database.port', { infer: true }),
-      username: this.configService.get('database.username', { infer: true }),
-      password: this.configService.get('database.password', { infer: true }),
-      database: this.configService.get('database.name', { infer: true }),
+    const type = this.configService.get('database.type', {
+      infer: true,
+    }) as any;
+    const url = this.configService.get('database.url', { infer: true });
+
+    const common = {
+      type,
       synchronize: this.configService.get('database.synchronize', {
         infer: true,
       }),
       dropSchema: false,
       keepConnectionAlive: true,
-      logging:
-        this.configService.get('app.nodeEnv', { infer: true }) !== 'production',
+      // logging:
+      //   this.configService.get('app.nodeEnv', { infer: true }) !== 'production',
       entities: [__dirname + '/../**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
       cli: {
@@ -52,6 +51,19 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
             }
           : undefined,
       },
+    } as Partial<TypeOrmModuleOptions>;
+
+    if (url) {
+      return { ...(common as TypeOrmModuleOptions), url };
+    }
+
+    return {
+      ...(common as TypeOrmModuleOptions),
+      host: this.configService.get('database.host', { infer: true }),
+      port: this.configService.get('database.port', { infer: true }),
+      username: this.configService.get('database.username', { infer: true }),
+      password: this.configService.get('database.password', { infer: true }),
+      database: this.configService.get('database.name', { infer: true }),
     } as TypeOrmModuleOptions;
   }
 }

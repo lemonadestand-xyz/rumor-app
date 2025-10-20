@@ -66,5 +66,26 @@ export default registerAs<AppConfig>('app', () => {
     apiPrefix: process.env.API_PREFIX || 'api',
     fallbackLanguage: process.env.APP_FALLBACK_LANGUAGE || 'en',
     headerLanguage: process.env.APP_HEADER_LANGUAGE || 'x-custom-lang',
+    logLevel: 'trace',
+    sendGrid: {
+      apiKey: process.env.SENDGRID_API_KEY,
+      senderEmail: process.env.SENDGRID_SENDER_EMAIL,
+      senderName: process.env.SENDGRID_SENDER_NAME,
+    },
+    // db: {
+    //   host: process.env.DATABASE_HOST,
+    //   port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT, 10) : undefined,
+    //   username: process.env.DATABASE_USERNAME,
+    //   password: process.env.DATABASE_PASSWORD,
+    //   database: process.env.DATABASE_NAME,
+    //   synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
+    //   logging: process.env.DATABASE_LOGGING === 'true',
+    // },
+    jwt: {
+      secret:
+        process.env.JWT_SECRET ||
+        'b8f287fec8c5bb8e267783e31640af3eeb1bb073e1b318fed4b782e25489afdfab321a56b708952e14e13ace98abfda1f92d2a7c32b2a2bd8bd6fce198c926e9',
+      expiresIn: process.env.JWT_EXPIRES_IN || '60m',
+    },
   };
 });

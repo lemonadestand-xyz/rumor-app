@@ -8,4 +8,13 @@ export type AppConfig = {
   apiPrefix: string;
   fallbackLanguage: string;
   headerLanguage: string;
+  db?: {
+    host?: string;
+    port?: number;
+    username?: string;
+    password?: string;
+    database?: string;
+    synchronize?: boolean;
+    logging?: boolean;
+  };
 };

@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Verify Your Email</title>
+  </head>
+  <body
+    style="font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px"
+  >
+    <div
+      style="
+        max-width: 600px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+      "
+    >
+      <h2>Welcome, {{name}}!</h2>
+      <p>Please verify your email address to activate your account.</p>
+      <a
+        href="{{verifyLink}}"
+        style="
+          background: #007bff;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          text-decoration: none;
+        "
+        >Verify Email</a
+      >
+      <p>If you didn’t create an account, you can safely ignore this email.</p>
+    </div>
+  </body>
+</html>

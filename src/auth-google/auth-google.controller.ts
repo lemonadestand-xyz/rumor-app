@@ -7,7 +7,7 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { AuthService } from '../auth/auth.service';
+// import { AuthService } from '../auth/auth.service';
 import { AuthGoogleService } from './auth-google.service';
 import { AuthGoogleLoginDto } from './dto/auth-google-login.dto';
 import { LoginResponseDto } from '../auth/dto/login-response.dto';
@@ -19,21 +19,21 @@ import { LoginResponseDto } from '../auth/dto/login-response.dto';
 })
 export class AuthGoogleController {
   constructor(
-    private readonly authService: AuthService,
+    // private readonly authService: AuthService,
     private readonly authGoogleService: AuthGoogleService,
   ) {}
 
-  @ApiOkResponse({
-    type: LoginResponseDto,
-  })
-  @SerializeOptions({
-    groups: ['me'],
-  })
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: AuthGoogleLoginDto): Promise<LoginResponseDto> {
-    const socialData = await this.authGoogleService.getProfileByToken(loginDto);
+  // @ApiOkResponse({
+  //   type: LoginResponseDto,
+  // })
+  // @SerializeOptions({
+  //   groups: ['me'],
+  // })
+  // @Post('login')
+  // @HttpCode(HttpStatus.OK)
+  // async login(@Body() loginDto: AuthGoogleLoginDto): Promise<LoginResponseDto> {
+  //   const socialData = await this.authGoogleService.getProfileByToken(loginDto);
 
-    return this.authService.validateSocialLogin('google', socialData);
-  }
+  //   return this.authService.validateSocialLogin('google', socialData);
+  // }
 }

@@ -10,7 +10,7 @@ import { MailConfig } from '../mail/config/mail-config.type';
 export type AllConfigType = {
   app: AppConfig;
   apple: AppleConfig;
-  auth: AuthConfig;
+  // auth: AuthConfig;
   database: DatabaseConfig;
   facebook: FacebookConfig;
   file: FileConfig;
