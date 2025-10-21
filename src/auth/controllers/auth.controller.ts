@@ -9,6 +9,7 @@ import { SignUpDataCreateModel } from '../models/signup-create.model';
 import { AuthService } from '../services/auth.service';
 import { SignUpResponseDto } from '../dto/responses/signup-response.dto';
 import {
+  ResetPasswordToken,
   UserIdToken,
   VerifyEmailToken,
 } from '../../common/decorators/user-id-token.decorator';
@@ -16,6 +17,7 @@ import { VerifyEmailRequestDto } from '../dto/request/verify-email-create-reques
 import {
   DecodedIdToken,
   DecodedIdTokenForEmailVerification,
+  DecodedIdTokenForResetPassword,
 } from '../../common/interfaces/decoded-id-token.interface';
 import { VerifyEmailResponseDto } from '../dto/responses/verify-email-response.dto';
 import { UpdatePasswordRequestDto } from '../dto/request/update-password-request.dto';
@@ -23,6 +25,7 @@ import { UpdatePasswordResponseDto } from '../dto/responses/update-password-resp
 import { SignInRequestDto } from '../dto/request/signin-create-request.dto';
 import { SignInDataCreateModel } from '../models/signin-create.model';
 import { SignInResponseDto } from '../dto/responses/signin-response.dto';
+import { ForgetPasswordRequestDto } from '../dto/request/forget-password-request.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -69,30 +72,45 @@ export class AuthController {
     return VerifyEmailResponseDto.fromModel(user);
   }
 
-  @ReadResourceCombinedDecorators({
-    path: 'me',
+  @PatchResourceCombinedDecorators({
+    path: 'setPassword',
     additionalErrors: ['badRequest', 'conflict'],
-    // responseType: DataWithPaginationResponseDto,
+    responseType: UpdatePasswordResponseDto,
   })
-  public async getUserById(
-    @UserIdToken() userIdToken: DecodedIdToken,
-  ): Promise<any> {
-    return userIdToken;
-    // const favoriteChaletsByUserId =
-    //   await this.favouriteChaletsService.favouriteChaletsByUserId(userIdToken.uid, paginationDto);
-    // return DataWithPaginationResponseDto.fromModel(favoriteChaletsByUserId);
+  public async setPassword(
+    @VerifyEmailToken() userIdToken: DecodedIdToken,
+    @Body() dto: UpdatePasswordRequestDto,
+  ): Promise<UpdatePasswordResponseDto> {
+    const setUserPassword = await this.authService.setPassword(
+      userIdToken.uid,
+      dto,
+    );
+    return UpdatePasswordResponseDto.fromModel(setUserPassword);
+  }
+
+  @CreateResourceCombinedDecorators({
+    path: 'forgetPassword',
+    additionalErrors: ['badRequest', 'conflict'],
+    responseType: UpdatePasswordResponseDto,
+    public: true,
+  })
+  public async forgetPassword(
+    @Body() dto: ForgetPasswordRequestDto,
+  ): Promise<UpdatePasswordResponseDto> {
+    const updateUserPassword = await this.authService.forgetPassword(dto.email);
+    return UpdatePasswordResponseDto.fromModel(updateUserPassword);
   }
 
   @PatchResourceCombinedDecorators({
-    path: 'updatePassword',
+    path: 'resetPassword',
     additionalErrors: ['badRequest', 'conflict'],
     responseType: UpdatePasswordResponseDto,
   })
   public async updateUserPassword(
-    @VerifyEmailToken() userIdToken: DecodedIdToken,
+    @ResetPasswordToken() userIdToken: DecodedIdTokenForResetPassword,
     @Body() dto: UpdatePasswordRequestDto,
   ): Promise<UpdatePasswordResponseDto> {
-    const updateUserPassword = await this.authService.updatePassword(
+    const updateUserPassword = await this.authService.resetPassword(
       userIdToken.uid,
       dto,
     );

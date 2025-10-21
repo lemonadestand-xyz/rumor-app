@@ -102,4 +102,20 @@ export class EmailService {
       variables: { name, verifyLink },
     });
   }
+
+  async sendPasswordResetEmail(
+    to: string,
+    name: string,
+    token: string,
+    userId: string,
+  ) {
+    const resetPasswordLink = `${this.baseUrl}/auth/action?mode=resetUserPassword&userToken=${token}&lang=en&type=resetPassword&userId=${userId}`;
+
+    await this.sendMail({
+      to,
+      subject: 'Reset your password',
+      templateName: 'reset-password-email',
+      variables: { name, resetPasswordLink },
+    });
+  }
 }

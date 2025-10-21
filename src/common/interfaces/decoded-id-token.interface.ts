@@ -22,6 +22,17 @@ export interface DecodedIdTokenForEmailVerification {
   [key: string]: any;
 }
 
+export interface DecodedIdTokenForResetPassword {
+  uid: string;
+  email: string;
+  auth_time: number;
+  iat: number;
+  exp?: number;
+  sub: string | number;
+  user: UserDataForResetPasswordLink;
+  [key: string]: any;
+}
+
 export interface JwtPayload {
   uid: string;
   sub: string | number;
@@ -37,7 +48,8 @@ export interface UserData {
   phoneNumber?: string;
   role?: UserRoles;
   status?: UserStatus;
-  is_verified: boolean;
+  isVerified: boolean;
+  isActive: boolean;
   verificationLinkGeneratedAt?: Date | string;
 }
 
@@ -48,7 +60,21 @@ export interface UserDataForVerficationLink {
   phoneNumber?: string;
   role?: UserRoles;
   status?: UserStatus;
-  is_verified: boolean;
+  isVerified: boolean;
   verificationLinkUsed: boolean;
   verificationLinkGeneratedAt?: Date | string;
+}
+
+export interface UserDataForResetPasswordLink {
+  id: string;
+  fullName: string;
+  email?: string;
+  phoneNumber?: string;
+  role?: UserRoles;
+  status?: UserStatus;
+  isVerified: boolean;
+  verificationLinkUsed: boolean;
+  verificationLinkGeneratedAt?: Date | string;
+  resetPasswordLinkGeneratedAt?: Date | string,
+  resetPasswordLinkUsed: boolean,
 }

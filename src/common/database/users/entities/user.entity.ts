@@ -80,6 +80,21 @@ export class UserEntity {
   verificationLinkUsedAt?: Date;
 
   @Column({
+    name: 'reset_password_link_generated_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  resetPasswordLinkGeneratedAt?: Date;
+
+  @Column({
+    name: 'reset_password_link_used',
+    type: 'boolean',
+    default: false,
+    nullable: true,
+  })
+  resetPasswordLinkUsed?: boolean;
+
+  @Column({
     name: 'roles',
     type: 'enum',
     enum: USER_ROLES,
@@ -87,6 +102,14 @@ export class UserEntity {
     default: [USER_ROLES.HOST],
   })
   roles: UserRoles[];
+
+  @Column({
+    name: 'is_profile_created',
+    type: 'boolean',
+    default: false,
+    nullable: true,
+  })
+  isProfileCreated: boolean;
 
   @Column({
     name: 'status',

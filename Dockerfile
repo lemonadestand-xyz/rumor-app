@@ -19,4 +19,5 @@ WORKDIR /usr/src/app
 RUN if [ ! -f .env ]; then cp env-example-relational .env; fi
 RUN npm run build
 
+# CMD ["npm", "run", "start:prod"]
 CMD ["/opt/startup.relational.dev.sh"]

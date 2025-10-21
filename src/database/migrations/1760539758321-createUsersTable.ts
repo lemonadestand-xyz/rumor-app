@@ -49,6 +49,17 @@ export class CreateUsersTable1760539758321 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name: 'reset_password_link_generated_at',
+            type: 'timestamp',
+            isNullable: true,
+          },
+          {
+            name: 'reset_password_link_used',
+            type: 'boolean',
+            default: false,
+            isNullable: true,
+          },
+          {
             name: 'verification_link_used_at',
             type: 'timestamp',
             isNullable: true,
@@ -64,6 +75,12 @@ export class CreateUsersTable1760539758321 implements MigrationInterface {
             type: 'user_status_enum',
             isNullable: false,
             default: `'active'`,
+          },
+          {
+            name: 'is_profile_created',
+            type: 'boolean',
+            default: false,
+            isNullable: true,
           },
           { name: 'created_at', type: 'timestamp', default: 'now()' },
           { name: 'updated_at', type: 'timestamp', default: 'now()' },
