@@ -3,12 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRoles, UserStatus } from 'src/users/enums/user.enum';
 import {
   DecodedIdTokenForEmailVerification,
+  DecodedIdTokenForResetPassword,
   JwtPayload,
 } from '../interfaces/decoded-id-token.interface';
 
 @Injectable()
 export class JWTTokenService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   async generateAccessToken(user: any): Promise<string> {
     const payload: JwtPayload = {
@@ -23,7 +24,8 @@ export class JWTTokenService {
         phoneNumber: user.phoneNumber,
         role: user.role,
         status: user.status,
-        is_verified: user.isVerified,
+        isVerified: user.isVerified,
+        isActive: user.isActive,
         verificationLinkGeneratedAt: user.verificationLinkGeneratedAt,
       },
     };
@@ -82,7 +84,7 @@ export class JWTTokenService {
         phoneNumber: user.phoneNumber,
         role: user.role,
         status: user.status,
-        is_verified: user.is_verified ?? false,
+        isVerified: user.isVerified ?? false,
         verificationLinkUsed: user.verificationLinkUsed ?? false,
         verificationLinkGeneratedAt: new Date(),
       },
@@ -91,6 +93,34 @@ export class JWTTokenService {
     // Let JwtService add exp automatically
     return this.jwtService.sign(payload, { expiresIn: '1d' });
   }
+
+  async generatePasswordResetToken(user: any): Promise<string> {
+    const payload: DecodedIdTokenForResetPassword = {
+      uid: user.id,
+      email: user.email,
+      auth_time: Math.floor(Date.now() / 1000),
+      iat: Math.floor(Date.now() / 1000),
+      sub: user.id,
+      user: {
+        id: user.id,
+        fullName:
+          user.fullName ??
+          `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+        status: user.status,
+        isVerified: user.isVerified ?? false,
+        verificationLinkUsed: user.verificationLinkUsed ?? false,
+        verificationLinkGeneratedAt: new Date(),
+        resetPasswordLinkGeneratedAt: new Date(),
+        resetPasswordLinkUsed: user.resetPasswordLinkUsed ?? false,
+      },
+    };
+
+    return this.jwtService.sign(payload, { expiresIn: '1d' });
+  }
+
 
   /**
    * Verify and decode an email verification token.

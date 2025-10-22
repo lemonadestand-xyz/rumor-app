@@ -5,12 +5,10 @@ export class VerifyEmailResponseDto {
   static fromModel(model: {
     id: string;
     message: string;
-    accessToken: string;
   }): IPublic<VerifyEmailResponseDto> {
     return {
       id: model.id,
       message: model.message,
-      accessToken: model.accessToken,
     };
   }
 
@@ -19,7 +17,4 @@ export class VerifyEmailResponseDto {
 
   @ApiProperty()
   message: string;
-
-  @ApiProperty()
-  accessToken: string;
 }

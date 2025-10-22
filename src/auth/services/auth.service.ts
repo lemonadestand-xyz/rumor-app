@@ -92,12 +92,13 @@ export class AuthService {
         password,
         user.passwordHash,
       );
-      if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid password');
-      }
 
       if (!user.isActive) {
         throw new NotFoundException('Your account is not fully active');
+      }
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid password');
       }
 
       const tokens = await this.generateTokens(user);
@@ -106,6 +107,7 @@ export class AuthService {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         userId: user?.id,
+        roles: user.roles,
         message: 'Successfully signed In',
       };
       return SignInReadModel.fromObject(response);
@@ -129,7 +131,7 @@ export class AuthService {
   async verifyEmail(
     userIdToken: DecodedIdTokenForEmailVerification,
     userId: string,
-  ): Promise<{ message: string; id: string; accessToken: string }> {
+  ): Promise<{ message: string; id: string; }> {
     const { uid, exp, user } = userIdToken;
 
     try {
@@ -177,12 +179,12 @@ export class AuthService {
         verificationLinkUsedAt: new Date(),
       });
 
-      const updatedUser = await this.usersRepository.getById(userId);
-      const accessToken =
-        await this.jwtTokenService.generateAccessToken(updatedUser);
+      // const updatedUser = await this.usersRepository.getById(userId);
+      // const accessToken =
+      //   await this.jwtTokenService.generateAccessToken(updatedUser);
 
       this.logger.log(`✅ User ${dbUser.email} verified successfully`);
-      return { message: 'Email verified successfully', id: uid, accessToken };
+      return { message: 'Email verified successfully', id: uid };
     } catch (error) {
       this.logger.error(`❌ Error verifying user: ${error.message}`);
       if (
@@ -199,7 +201,7 @@ export class AuthService {
     }
   }
 
-  async updatePassword(
+  async setPassword(
     userId: string,
     dto: UpdatePasswordRequestDto,
   ): Promise<{ message: string; id: string }> {
@@ -223,6 +225,109 @@ export class AuthService {
       await this.usersRepository.update(userId, {
         passwordHash: hashedPassword,
         isActive: true,
+      });
+
+      this.logger.log(
+        `✅ Password updated successfully for user ${user.email}`,
+      );
+      return { message: 'Password updated successfully', id: userId };
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException ||
+        error instanceof InternalServerErrorException
+      ) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Password update failed', {
+        cause: new Error(`Error updating password: ${error?.message}`),
+      });
+    }
+  }
+
+  async forgetPassword(email: string): Promise<{ message: string, id: string }> {
+    try {
+      const user = await this.usersRepository.getByEmail(email);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+  
+      if (!user.isVerified) {
+        throw new BadRequestException('Your account is not verified');
+      }
+  
+      await this.usersRepository.update(user.id, {
+        resetPasswordLinkGeneratedAt: new Date(),
+        resetPasswordLinkUsed: false,
+      });
+
+      const updatedUser = await this.usersRepository.getById(user.id);
+
+      const resetToken = await this.jwtTokenService.generatePasswordResetToken(updatedUser);
+  
+      this.emailService
+        .sendPasswordResetEmail(
+          user.email,
+          `${user.firstName ?? ''} ${user.lastName ?? ''}`,
+          resetToken,
+          user.id,
+        )
+        .then(() => this.logger.log(`Password reset email queued for ${user.email}`))
+        .catch((err) =>
+          this.logger.error(
+            `Password reset email send failed for ${user.email}: ${err.message}`,
+          ),
+        );
+  
+      return { message: 'Password reset link sent to your email', id: user.id };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+  
+      this.logger.error(
+        `❌ Forget password failed for ${email}: ${error.message}`,
+      );
+      throw new InternalServerErrorException('Forget password failed', {
+        cause: new Error(`Error in forget password: ${error?.message}`),
+      });
+    }
+  }
+
+  async resetPassword(
+    userId: string,
+    dto: UpdatePasswordRequestDto,
+  ): Promise<{ message: string; id: string }> {
+    try {
+      const user = await this.usersRepository.getById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (!user.isVerified) {
+        throw new BadRequestException('Your account is not verified');
+      }
+
+      if (user.resetPasswordLinkUsed
+      ) {
+        throw new BadRequestException('This token is already used');
+      }
+
+      if (dto.password !== dto.confirmPassword) {
+        throw new BadRequestException('Passwords do not match');
+      }
+      let hashedPassword: string;
+      hashedPassword = await hashPassword(dto.password, 10);
+      if (!hashedPassword) {
+        throw new InternalServerErrorException('Failed to hash password');
+      }
+
+      await this.usersRepository.update(userId, {
+        passwordHash: hashedPassword,
+        resetPasswordLinkUsed: true,
       });
 
       this.logger.log(
