@@ -93,7 +93,7 @@ export class EmailService {
     token: string,
     userId: string,
   ) {
-    const verifyLink = `${this.baseUrl}/auth/action?mode=verifyEmailAddress&userToken=${token}&lang=en&type=verifyEmail&userId=${userId}`;
+    const verifyLink = `${this.baseUrl}/host/auth/new-password?mode=verifyEmailAddress&userToken=${token}&lang=en&type=verifyEmail&userId=${userId}`;
 
     await this.sendMail({
       to,
