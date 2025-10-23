@@ -109,7 +109,7 @@ export class EmailService {
     token: string,
     userId: string,
   ) {
-    const resetPasswordLink = `${this.baseUrl}/auth/action?mode=resetUserPassword&userToken=${token}&lang=en&type=resetPassword&userId=${userId}`;
+    const resetPasswordLink = `${this.baseUrl}/host/auth/reset-password?mode=resetUserPassword&userToken=${token}&lang=en&type=resetPassword&userId=${userId}`;
 
     await this.sendMail({
       to,
