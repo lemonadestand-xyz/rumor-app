@@ -380,12 +380,14 @@ export class EventCreateRequestDto {
 
   @ApiPropertyOptional({
     description: 'Event tags',
+    example: ['Innovation', 'Technology', 'AI', 'Sustainability'],
+    type: [String],
   })
-  @ValidateNested({ each: true })
+  @IsOptional()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
   @MaxLength(100, { each: true })
-  tags: string[];
+  tags?: string[];
 
   @ApiPropertyOptional({
     description: 'Event Series information (if this event belongs to a series)',
