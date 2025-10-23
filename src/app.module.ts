@@ -45,6 +45,7 @@ import {
 import { LoggerModule } from 'nestjs-pino';
 import { UsersModule } from './users/users.module';
 import { UserProfileModule } from './user-profile/user-profile.module';
+import { EventsModule } from './events/events.module';
 
 // <database-block>
 // const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -118,6 +119,7 @@ import { UserProfileModule } from './user-profile/user-profile.module';
     JwtTokenModule,
     UsersModule,
     UserProfileModule,
+    EventsModule,
   ],
   providers: [AuthMiddleware],
 })
