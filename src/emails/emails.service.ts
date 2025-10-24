@@ -93,7 +93,7 @@ export class EmailService {
     token: string,
     userId: string,
   ) {
-    const verifyLink = `${this.baseUrl}/host/auth/new-password?mode=verifyEmailAddress&userToken=${token}&lang=en&type=verifyEmail&userId=${userId}`;
+    const verifyLink = `${this.baseUrl}/host/auth/set-password?mode=verifyEmailAddress&userToken=${token}&lang=en&type=verifyEmail&userId=${userId}`;
 
     await this.sendMail({
       to,
@@ -109,7 +109,7 @@ export class EmailService {
     token: string,
     userId: string,
   ) {
-    const resetPasswordLink = `${this.baseUrl}/host/auth/reset-password?mode=resetUserPassword&userToken=${token}&lang=en&type=resetPassword&userId=${userId}`;
+    const resetPasswordLink = `${this.baseUrl}/host/auth/new-password?mode=resetUserPassword&userToken=${token}&lang=en&type=resetPassword&userId=${userId}`;
 
     await this.sendMail({
       to,
