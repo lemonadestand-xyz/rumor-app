@@ -2,7 +2,6 @@ import { Body, Controller } from '@nestjs/common';
 import {
   CreateResourceCombinedDecorators,
   PatchResourceCombinedDecorators,
-  ReadResourceCombinedDecorators,
 } from '../../common/decorators/routes-decorators.decorator';
 import { SignUpRequestDto } from '../dto/request/signup-create-request.dto';
 import { SignUpDataCreateModel } from '../models/signup-create.model';
@@ -10,7 +9,6 @@ import { AuthService } from '../services/auth.service';
 import { SignUpResponseDto } from '../dto/responses/signup-response.dto';
 import {
   ResetPasswordToken,
-  UserIdToken,
   VerifyEmailToken,
 } from '../../common/decorators/user-id-token.decorator';
 import { VerifyEmailRequestDto } from '../dto/request/verify-email-create-request.dto';
@@ -26,6 +24,8 @@ import { SignInRequestDto } from '../dto/request/signin-create-request.dto';
 import { SignInDataCreateModel } from '../models/signin-create.model';
 import { SignInResponseDto } from '../dto/responses/signin-response.dto';
 import { ForgetPasswordRequestDto } from '../dto/request/forget-password-request.dto';
+import { ResendVerifyEmailResponseDto } from '../dto/responses/resend-verify-email-response.dto';
+import { ResendVerifyEmailRequestDto } from '../dto/request/resend-verify-email-request.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -70,6 +70,18 @@ export class AuthController {
   ): Promise<VerifyEmailResponseDto> {
     const user = await this.authService.verifyEmail(token, dto.userId);
     return VerifyEmailResponseDto.fromModel(user);
+  }
+  @CreateResourceCombinedDecorators({
+    path: 'resendVerifyEmail',
+    additionalErrors: ['badRequest', 'conflict'],
+    responseType: ResendVerifyEmailResponseDto,
+  })
+  public async resendVerifyEmail(
+    @Body() dto: ResendVerifyEmailRequestDto,
+    @VerifyEmailToken() token: DecodedIdTokenForEmailVerification,
+  ): Promise<ResendVerifyEmailResponseDto> {
+    const user = await this.authService.resendEmailVerification(token.uid, dto.email);
+    return ResendVerifyEmailResponseDto.fromModel(user);
   }
 
   @PatchResourceCombinedDecorators({
