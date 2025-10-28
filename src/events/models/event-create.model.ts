@@ -1,8 +1,8 @@
-import { CreateEventDto } from '../dto/request/event-create-request.dto';
+import { EventCreateRequestDto } from '../dto/request/event-create-request.dto';
 import { EVENT_LOCATION_TYPE, EVENT_STATUS, EVENT_VISIBILITY } from '../enums/events.enum';
 
 export class EventCreateModel {
-    static fromDto(data: CreateEventDto): EventCreateModel {
+    static fromDto(data: EventCreateRequestDto): EventCreateModel {
         const model = new EventCreateModel();
 
         // Basic Information

@@ -1,5 +1,5 @@
-// src/events/dto/create-event.dto.ts
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsInt,
@@ -14,15 +14,72 @@ import {
   ValidateIf,
   IsNumber,
   IsUUID,
+  ValidateNested,
+  IsString,
+  MaxLength,
+  IsUrl,
 } from 'class-validator';
 import {
   IsStringNotEmpty,
   IsStringOptional,
 } from 'src/common/decorators/combined-validations.decorator';
-import { EVENT_LOCATION_TYPE, EVENT_STATUS, EVENT_VISIBILITY } from '../../enums/events.enum';
+import { EVENT_LOCATION_TYPE, EVENT_STATUS, EVENT_VISIBILITY } from 'src/events/enums/events.enum';
 
 
-export class CreateEventDto {
+
+export class EventCollaboratorCreateRequestDto {
+  @ApiProperty({ example: 'john.doe@example.com', description: 'Collaborator email' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({ example: 'John Doe', description: 'Collaborator name' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  name: string;
+
+  @ApiProperty({ example: 'co-host', description: 'Collaborator role' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  role: string;
+}
+
+export class EventSeriesCreateRequestDto {
+  @ApiProperty({ example: 'Summer Music Festival', description: 'Series name' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  seriesName: string;
+
+  @ApiPropertyOptional({ 
+    example: 'A series of summer music events', 
+    description: 'Series description' 
+  })
+  @IsOptional()
+  @IsString()
+  seriesDescription?: string;
+
+  @ApiPropertyOptional({ 
+    example: 'https://example.com/series/summer-festival', 
+    description: 'Event series page URL' 
+  })
+  @IsOptional()
+  @IsUrl()
+  eventSeriesPage?: string;
+
+  @ApiPropertyOptional({ 
+    example: 'https://example.com/artwork/series-banner.jpg', 
+    description: 'Artwork URL' 
+  })
+  @IsOptional()
+  @IsUrl()
+  artworkUrl?: string;
+
+}
+
+export class EventCreateRequestDto {
   // Basic Information
   @ApiProperty({ example: 'Annual Tech Conference 2025' })
   @IsStringNotEmpty()
@@ -65,7 +122,7 @@ export class CreateEventDto {
   @IsStringOptional()
   timezone?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: '2025-11-25',
     description: 'RSVP deadline date (YYYY-MM-DD)'
   })
@@ -74,7 +131,7 @@ export class CreateEventDto {
   rsvpByDate?: string;
 
   // Location Details
-  @ApiProperty({ 
+  @ApiProperty({
     enum: EVENT_LOCATION_TYPE,
     example: EVENT_LOCATION_TYPE.PHYSICAL,
     description: 'Type of event location'
@@ -135,14 +192,14 @@ export class CreateEventDto {
   showFullAddressToConfirmedGuestsOnly?: boolean;
 
   // Event Description
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'Join us for an amazing tech conference...',
-    description: 'Detailed event description' 
+    description: 'Detailed event description'
   })
   @IsStringOptional()
   eventDescription?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'Annual tech conference with industry leaders',
     description: 'Short summary of the event'
   })
@@ -150,7 +207,7 @@ export class CreateEventDto {
   shortDescription?: string;
 
   // Visibility
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     enum: EVENT_VISIBILITY,
     example: EVENT_VISIBILITY.PUBLIC,
     default: EVENT_VISIBILITY.PUBLIC
@@ -192,7 +249,7 @@ export class CreateEventDto {
   @IsBoolean({ message: 'isEventPartOfEventFlow must be a boolean' })
   isEventPartOfEventFlow?: boolean;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'UUID of the event flow'
   })
@@ -214,7 +271,7 @@ export class CreateEventDto {
   @IsBoolean({ message: 'enableQrCode must be a boolean' })
   enableQrCode?: boolean;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'https://example.com/images/series-artwork.jpg',
     description: 'URL to event series artwork'
   })
@@ -227,7 +284,7 @@ export class CreateEventDto {
   )
   eventSeriesArtworkUrl?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'immediately',
     description: 'When to send invites: immediately, later, or never'
   })
@@ -248,7 +305,7 @@ export class CreateEventDto {
   @IsBoolean({ message: 'isRecurring must be a boolean' })
   isRecurring?: boolean;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'weekly',
     description: 'Recurrence pattern: daily, weekly, monthly, yearly'
   })
@@ -259,7 +316,7 @@ export class CreateEventDto {
   })
   recurrencePattern?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: '2025-12-31',
     description: 'Date when recurrence ends (YYYY-MM-DD)'
   })
@@ -268,7 +325,7 @@ export class CreateEventDto {
   @IsDateString({}, { message: 'recurrenceEndDate must be a valid date string (YYYY-MM-DD)' })
   recurrenceEndDate?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'UUID of parent event for recurring events'
   })
@@ -277,7 +334,7 @@ export class CreateEventDto {
   parentEventId?: string;
 
   // Media
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'https://example.com/images/featured.jpg',
     description: 'URL to featured image'
   })
@@ -290,7 +347,7 @@ export class CreateEventDto {
   )
   featuredImageId?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'https://example.com/images/banner.jpg',
     description: 'URL to banner image'
   })
@@ -304,7 +361,7 @@ export class CreateEventDto {
   bannerImageId?: string;
 
   // Status
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     enum: EVENT_STATUS,
     example: EVENT_STATUS.DRAFT,
     default: EVENT_STATUS.DRAFT
@@ -312,4 +369,31 @@ export class CreateEventDto {
   @IsOptional()
   @IsEnum(EVENT_STATUS, { message: 'status must be draft, published, cancelled, or completed' })
   status?: EVENT_STATUS;
+
+  @ApiPropertyOptional({
+    description: 'Event collaborators',
+    type: [EventCollaboratorCreateRequestDto],
+  })
+  @ValidateNested({ each: true })
+  @Type(() => EventCollaboratorCreateRequestDto)
+  collaborators?: EventCollaboratorCreateRequestDto[];
+
+  @ApiPropertyOptional({
+    description: 'Event tags',
+    example: ['Innovation', 'Technology', 'AI', 'Sustainability'],
+    type: [String],
+  })
+  @IsOptional()
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @MaxLength(100, { each: true })
+  tags?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Event Series information (if this event belongs to a series)',
+    type: EventSeriesCreateRequestDto,
+  })
+  @ValidateNested()
+  @Type(() => EventSeriesCreateRequestDto)
+  eventSeries?: EventSeriesCreateRequestDto;
 }
