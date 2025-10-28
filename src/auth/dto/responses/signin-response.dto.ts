@@ -11,6 +11,7 @@ export class SignInResponseDto {
       roles: model.roles,
       accessToken: model.accessToken,
       refreshToken: model.refreshToken,
+      isProfileCreated: model.isProfileCreated,
     };
   }
 
@@ -28,4 +29,7 @@ export class SignInResponseDto {
 
   @ApiProperty()
   refreshToken: string;
+  
+  @ApiProperty()
+  isProfileCreated: boolean;
 }

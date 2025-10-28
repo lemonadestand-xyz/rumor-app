@@ -12,7 +12,6 @@ import { JWTTokenService } from '../../common/jwtToken/jwtToken.service';
 import { EmailService } from '../../emails/emails.service';
 import { Logger } from 'nestjs-pino';
 import {
-  DecodedIdToken,
   DecodedIdTokenForEmailVerification,
 } from '../../common/interfaces/decoded-id-token.interface';
 import {
@@ -61,6 +60,7 @@ export class AuthService {
           `${user.firstName ?? ''} ${user.lastName ?? ''}`,
           accessToken,
           user.id,
+          user.email,
         )
         .then(() => this.logger.log(`Welcome email queued for ${user.email}`))
         .catch((err) =>
@@ -107,6 +107,7 @@ export class AuthService {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         userId: user?.id,
+        isProfileCreated: user?.isProfileCreated,
         roles: user.roles,
         message: 'Successfully signed In',
       };
@@ -128,10 +129,60 @@ export class AuthService {
     }
   }
 
+  async resendEmailVerification(
+    userId: string,
+    email: string,
+  ): Promise<{ message: string; id: string }> {
+    try {
+      const user = await this.usersRepository.getById(userId);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      if (user.isVerified) {
+        throw new BadRequestException('User is already verified');
+      }
+
+      if (user.email !== email) {
+        throw new BadRequestException('Email does not match our records');
+      }
+      const newToken =
+      await this.jwtTokenService.generateEmailVerificationToken(user);
+      await this.usersRepository.update(user.id, {
+        verificationLinkGeneratedAt: new Date(),
+        verificationLinkUsed: false,
+      });
+
+      await this.emailService.sendVerifyEmailAddress(
+        user.email,
+        `${user.firstName ?? ''} ${user.lastName ?? ''}`,
+        newToken,
+        user.id,
+        user.email,
+      );
+
+      this.logger.log(`Resent verification email to ${user.email}`);
+      return { message: 'Verification email resent successfully', id: user.id };
+    } catch (error) {
+      this.logger.error(`Resend verification failed: ${error.message}`);
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Failed to resend verification email',
+        {
+          cause: new Error(error?.message),
+        },
+      );
+    }
+  }
+
   async verifyEmail(
     userIdToken: DecodedIdTokenForEmailVerification,
     userId: string,
-  ): Promise<{ message: string; id: string; }> {
+  ): Promise<{ message: string; id: string }> {
     const { uid, exp, user } = userIdToken;
 
     try {
@@ -246,17 +297,19 @@ export class AuthService {
     }
   }
 
-  async forgetPassword(email: string): Promise<{ message: string, id: string }> {
+  async forgetPassword(
+    email: string,
+  ): Promise<{ message: string; id: string }> {
     try {
       const user = await this.usersRepository.getByEmail(email);
       if (!user) {
         throw new NotFoundException('User not found');
       }
-  
+
       if (!user.isVerified) {
         throw new BadRequestException('Your account is not verified');
       }
-  
+
       await this.usersRepository.update(user.id, {
         resetPasswordLinkGeneratedAt: new Date(),
         resetPasswordLinkUsed: false,
@@ -264,8 +317,9 @@ export class AuthService {
 
       const updatedUser = await this.usersRepository.getById(user.id);
 
-      const resetToken = await this.jwtTokenService.generatePasswordResetToken(updatedUser);
-  
+      const resetToken =
+        await this.jwtTokenService.generatePasswordResetToken(updatedUser);
+
       this.emailService
         .sendPasswordResetEmail(
           user.email,
@@ -273,13 +327,15 @@ export class AuthService {
           resetToken,
           user.id,
         )
-        .then(() => this.logger.log(`Password reset email queued for ${user.email}`))
+        .then(() =>
+          this.logger.log(`Password reset email queued for ${user.email}`),
+        )
         .catch((err) =>
           this.logger.error(
             `Password reset email send failed for ${user.email}: ${err.message}`,
           ),
         );
-  
+
       return { message: 'Password reset link sent to your email', id: user.id };
     } catch (error) {
       if (
@@ -288,7 +344,7 @@ export class AuthService {
       ) {
         throw error;
       }
-  
+
       this.logger.error(
         `❌ Forget password failed for ${email}: ${error.message}`,
       );
@@ -311,8 +367,7 @@ export class AuthService {
         throw new BadRequestException('Your account is not verified');
       }
 
-      if (user.resetPasswordLinkUsed
-      ) {
+      if (user.resetPasswordLinkUsed) {
         throw new BadRequestException('This token is already used');
       }
 
